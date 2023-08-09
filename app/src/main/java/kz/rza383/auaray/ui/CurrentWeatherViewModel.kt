@@ -29,6 +29,9 @@ import kz.rza383.auaray.model.WeatherItem
 import kz.rza383.auaray.data.database.CurrentWeatherEntity
 import kz.rza383.auaray.data.repository.DbRepository
 import kz.rza383.auaray.data.repository.MyRepositoryImpl
+import kz.rza383.auaray.data.repository.onError
+import kz.rza383.auaray.data.repository.onSuccess
+import kz.rza383.auaray.data.repository.onSuccessSuspend
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
@@ -139,21 +142,30 @@ class CurrentWeatherViewModel @Inject constructor(
                 true,
                 "1",
                 TimeZone)
-        val today = CurrentWeatherEntity(
-            locationName = _locationName.value ?: "TSHO",
-            chanceOfPrecipitation = apiCallResult.extraData.precipitationChance.first(),
-            elevation = apiCallResult.elevation,
-            temperature = apiCallResult.listOfWeatherData.temperature,
-            time = apiCallResult.listOfWeatherData.time,
-            isDay = apiCallResult.listOfWeatherData.isDay,
-            uvIndex = apiCallResult.extraData.uvIndex.first(),
-            windSpeed = apiCallResult.listOfWeatherData.windSpeed
-        )
-        Log.d(TAG, today.toString())
-        dbRepository.saveWeather(today)
-        weatherToday.value?.uvIndex?.let { getUvIndex(it) }
+        apiCallResult.onSuccessSuspend {
+            if (it == null) return@onSuccessSuspend
+            val today = CurrentWeatherEntity(
+                locationName = _locationName.value ?: "TSHO",
+                chanceOfPrecipitation = it.extraData.precipitationChance.first(),
+                elevation = it.elevation,
+                temperature = it.listOfWeatherData.temperature,
+                time = it.listOfWeatherData.time,
+                isDay = it.listOfWeatherData.isDay,
+                uvIndex = it.extraData.uvIndex.first(),
+                windSpeed = it.listOfWeatherData.windSpeed
+            )
+            Log.d(TAG, today.toString())
+            dbRepository.saveWeather(today)
+            weatherToday.value?.uvIndex?.let { getUvIndex(it) }
+        }.onError {
+            //
+        }
+
+
     }
 
+
+    // TODO
     private suspend fun getForecastFromApi(){
         val apiCallResult = repository
             .getForecast(

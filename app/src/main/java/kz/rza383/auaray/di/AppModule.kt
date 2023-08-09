@@ -80,6 +80,7 @@ object AppModule {
         client: OkHttpClient
     ): CurrentWeatherApiService =  Retrofit.Builder()
             .addConverterFactory(MoshiConverterFactory.create(moshi))
+            .addCallAdapterFactory()
             .baseUrl(Constants.BASE_URL)
             .client(client)
             .build()

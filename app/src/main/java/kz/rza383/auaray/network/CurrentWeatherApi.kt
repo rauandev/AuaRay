@@ -1,5 +1,6 @@
 package kz.rza383.auaray.network
 
+import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Query
 
@@ -12,12 +13,12 @@ interface CurrentWeatherApiService {
                                   @Query("daily") precipitationChance: String,
                                   @Query("current_weather") isCurrentWeather: Boolean,
                                   @Query("forecast_days") forecastDays: String,
-                                  @Query("timezone") auto: String): CurrentWeather
+                                  @Query("timezone") auto: String): Response<CurrentWeather>
     @GET("/v1/forecast?")
     suspend fun getForecast(@Query("latitude") latitude: Float,
                             @Query("longitude") longitude: Float,
                             @Query("daily") dailyParams: Array<String>,
                             @Query("forecast_days") forecastDays: String,
-                            @Query("timezone") auto: String): ForecastResponse
+                            @Query("timezone") auto: String): Response<ForecastResponse>
 }
 

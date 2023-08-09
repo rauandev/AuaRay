@@ -9,6 +9,7 @@ import kz.rza383.auaray.network.CurrentWeather
 import kz.rza383.auaray.network.ForecastResponse
 import kz.rza383.auaray.di.IoDispatcher
 import kz.rza383.auaray.network.CurrentWeatherApiService
+import kz.rza383.domain.entity.Result
 import kz.rza383.domain.repository.MyRepository
 import javax.inject.Inject
 
@@ -16,7 +17,8 @@ class MyRepositoryImpl @Inject constructor(
     private val api: Lazy<CurrentWeatherApiService>,
     private val appContext: Application,
     @IoDispatcher
-    private val ioDispatcher: CoroutineDispatcher
+    private val ioDispatcher: CoroutineDispatcher,
+    private val apiCaller: ApiCaller
 ): MyRepository {
 
     val chartDescription =
@@ -30,9 +32,9 @@ class MyRepositoryImpl @Inject constructor(
         isCurrentWeather: Boolean,
         forecastDays: String,
         auto: String
-    ): CurrentWeather =
+    ): Result<CurrentWeather> =
         withContext(ioDispatcher){
-            api
+                val response = api
                 .get()
                 .getCurrentWeather(
                     latitude,
@@ -43,6 +45,7 @@ class MyRepositoryImpl @Inject constructor(
                     forecastDays,
                     auto
                 )
+            return@withContext apiCaller.call(response)
         }
 
 
@@ -52,9 +55,9 @@ class MyRepositoryImpl @Inject constructor(
         dailyParams: Array<String>,
         forecastDays: String,
         auto: String
-    ): ForecastResponse =
+    ): Result<ForecastResponse> =
         withContext(ioDispatcher){
-            api
+            val response = api
                 .get()
                 .getForecast(
                     latitude,
@@ -63,6 +66,7 @@ class MyRepositoryImpl @Inject constructor(
                     forecastDays,
                     auto
                 )
+            return@withContext apiCaller.call(response)
         }
 
 

@@ -2,6 +2,7 @@ package kz.rza383.domain.repository
 
 import kz.rza383.auaray.network.CurrentWeather
 import kz.rza383.auaray.network.ForecastResponse
+import kz.rza383.domain.entity.Result
 
 interface MyRepository  {
 
@@ -13,11 +14,11 @@ interface MyRepository  {
         isCurrentWeather: Boolean,
         forecastDays: String,
         auto: String
-    ): CurrentWeather
+    ): Result<CurrentWeather>
 
     suspend fun getForecast(latitude: Float,
                             longitude: Float,
                             dailyParams: Array<String>,
                             forecastDays: String,
-                            auto: String): ForecastResponse
+                            auto: String): Result<ForecastResponse>
 }
